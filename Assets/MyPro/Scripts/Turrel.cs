@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,30 +5,29 @@ using UnityEngine.Events;
 
 namespace MyProjectL
 {
-    public class Enemy : MonoBehaviour
+    public class Turrel : MonoBehaviour
     {
         [SerializeField] private Player _player;
+        [SerializeField] private float _speedRotate;
+                
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _spawnPosition;
+        [SerializeField] private float _health = 10;
         [SerializeField] private float _cooldown;
-        [SerializeField] private float _health;
-        [SerializeField] private float _speedRotate = 200f;
-
         [SerializeField] private bool _isFire;
+
         [SerializeField] private UnityEvent _event;
+
         void Start()
         {
             _player = FindObjectOfType<Player>();
 
-            //var q = new Quaternion(1, 1, 1, 1);               // x, y, z, w
         }
-
         private void Update()   //еще для мины надо сделать
         {
-
             Ray ray = new Ray(_spawnPosition.position, transform.forward);
             //Debug.DrawRay(_spawnPosition.position, transform.forward * 6, Color.blue);
-            if (Physics.Raycast(ray, out RaycastHit hit, 3))
+            if (Physics.Raycast(ray, out RaycastHit hit, 6))
             {
                 Debug.DrawRay(_spawnPosition.position, transform.forward * hit.distance, Color.blue);
                 Debug.DrawRay(hit.point, hit.normal, Color.magenta);
@@ -51,10 +49,25 @@ namespace MyProjectL
             **/
         }
 
-        private void FixedUpdate()
+        /**void FixedUpdate()              // не update!
+        {
+            //динамическое определение типов. если magnitude - а float автоматически, не для полей.
+            //а внутри методов можно
+            
+            var direction = _player.transform.position - transform.position;
+            var stepRotate = Vector3.RotateTowards(transform.forward, //текущий вектор направл взгляда
+                    direction,                                        // конечная точка поворота
+                    _speedRotate * Time.fixedDeltaTime,               // скорость поворота
+                    0f);                                              // дельтамагнитуда всегда 0
+            
+            transform.rotation = Quaternion.LookRotation(stepRotate);
+            //transform.rotation = Quaternion.LookRotation(_player.transform.position - transform.position);
+            
+        }**/
+        void FixedUpdate()
         {
             var direction =
-                    _player.transform.position - transform.position;
+                _player.transform.position - transform.position;
 
             var pr = Vector3.Dot(
                 transform.forward,
@@ -76,18 +89,6 @@ namespace MyProjectL
 
             transform.rotation = Quaternion.LookRotation(stepRotate);
         }
-        public void Hurt(float _damage)
-        {
-            print("Ouch: " + _damage);
-
-            _health -= _damage; ;
-
-            if (_health <= 0)
-            {
-                Destroy(gameObject);  //или сделать метод Die
-            }
-        }
-
         private void Fire()
         {
             _isFire = false;
@@ -102,5 +103,19 @@ namespace MyProjectL
         {
             _isFire = true;
         }
+        public void Hurt(float _damage)
+        {
+            print("Ouch: " + _damage);
+
+            _health -= _damage; ;
+
+            if (_health <= 0)
+            {
+                Destroy(gameObject); 
+            }
+        }
+
+
+
     }
 }

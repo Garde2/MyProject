@@ -78,14 +78,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 630363376081283409}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9d61df06d2ea61429ddfb6414d5af08, type: 3}
+  m_Script: {fileID: 11500000, guid: 158d9106add705646ba463c9015180a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  level: 1
-  ghostPrefab: {fileID: 630363376081283409}
-  spawnPositionGhost: {fileID: 0}
-  maxenemy: 3
-  TimerSpawn: 5
+  _player: {fileID: 0}
+  _bulletPrefab: {fileID: 0}
+  _spawnPosition: {fileID: 0}
+  _cooldown: 1
+  _health: 10
+  _isFire: 1
+  _event:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &840645997262154287
 GameObject:
   m_ObjectHideFlags: 0
