@@ -9,8 +9,8 @@ namespace MyProjectL
     public class Player : MonoBehaviour  //у монобих конструктор закрыт, наследника не вызвать. содает экземпляр.
     {
         //public KeyCode keySpell1;
-        [SerializeField] private float _health = 200f;
-        [SerializeField] private float _cooldown;
+        [SerializeField] private float _health = 100f;
+        [SerializeField] private float _cooldown = 1;
         [SerializeField] private bool _isFire;
         [SerializeField] private UnityEvent _event;
 
@@ -18,10 +18,8 @@ namespace MyProjectL
 
         [SerializeField] private GameObject _mine; // Наша мина
         [SerializeField] private Transform mineSpawnPlace; // точка, где создается мина
-        private bool _isSpawnMine;
-
+        [SerializeField] private bool _isSpawnMine;
         [SerializeField] private Enemy _enemy;
-        
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _spawnPosition;
        
@@ -29,19 +27,27 @@ namespace MyProjectL
         public GameObject shieldPrefab;
         public Transform spawnPosition;
 
-        private bool _isSpawnShield;
+        [SerializeField] private bool _isSpawnShield;
         
         [HideInInspector] public int level = 1;  //так бы видели в юнити, но спрятали в инспекторе
 
-        private Vector3 _direction;    //x - право, z - вперед, y - вверх
-        public float speed = 2f;
-        public float _speedRotate = 200f;           //для поворота мышкой
-        private bool _isSprint;
+        [SerializeField] private Vector3 _direction;    //x - право, z - вперед, y - вверх
+        [SerializeField] private float speed = 2f;
+        [SerializeField] private float _speedRotate = 200f;           //для поворота мышкой
+        [SerializeField] private bool _isSprint;
+        [SerializeField] private UnityEvent _event2;
+
 
         private void Start()
         {
             _enemy = FindObjectOfType<Enemy>();
 
+            _health += Time.deltaTime;
+            if (Mathf.Approximately(_health, 0))    //+ - эпсилон, сравнивает
+            {
+                Debug.Log("Health = 0");
+                enabled = false;
+            }
             /**
             var point1 = new Vector3(1f, 5f, 1434f);
             var point2 = new Vector3(15f, 5f, 143f);
@@ -52,33 +58,42 @@ namespace MyProjectL
             **/
         }
 
-
-        void Update() //привязан к фпс                 //пули по аналогии, только как просчитать пролет мимо щита для удаления. по положению геймобжекту шилд?
+        void Update() //привязан к фпс                 
         {
-            if (Input.GetKey(KeyCode.R))     //if (Input.GetMouseButtonDown(2)) кнопки мышки
-                _isSpawnShield = true;
+            Ray ray = new Ray(_spawnPosition.position, transform.forward);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 4))
+            {
+                Debug.DrawRay(_spawnPosition.position, transform.forward * hit.distance, Color.blue);
+                Debug.DrawRay(hit.point, hit.normal, Color.magenta);
+
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        if (_isFire)
+                            Fire();
+                    }
+                }                
+            }           
 
             _direction.x = Input.GetAxis("Horizontal");
             _direction.z = Input.GetAxis("Vertical");
-            _isSprint = Input.GetButton("Sprint");
+            _isSprint = Input.GetKey(KeyCode.C);      //Input.GetButton("Sprint");
 
             if (Input.GetKeyDown(KeyCode.Space))
-                GetComponent<Rigidbody>().AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
-
-            //if (Input.GetMouseButtonDown(1))           // для мобильных тапов тоже
-            //    _isSpawnShield = true;
-
+                GetComponent<Rigidbody>().AddForce(Vector3.up
+                    * _jumpForce, ForceMode.Impulse);
+            
             // Если нажата кнопка  
             if (Input.GetKey(KeyCode.F))
                 _isSpawnMine = true;
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (_isFire)
-                    Fire();
-            }
+           // if (Input.GetKey(KeyCode.C)) _isSprint = true;   //так он не прекращает носиться, но если while - я поставила мину и игра встала. хотя в коде ничего не предвещало)
 
-            //_isFire = true;                 вот это вот - ответ на вопрос насчет пулек во рту. до 20:43:10 по моему времени.
+            if (Input.GetKey(KeyCode.R))     //if (Input.GetMouseButtonDown(0)) кнопки мышки
+                _isSpawnShield = true;
+
 
             /** движение длинное
              if (Input.GetKey(KeyCode.W))
@@ -92,39 +107,48 @@ namespace MyProjectL
         }
         public void FixedUpdate()
         {
+            var direction = _enemy.transform.position - transform.position;
+
+            var pr = Vector3.Dot(transform.forward, direction);
+            var abs = Mathf.Abs(pr);
+            var rad = Mathf.Sin(abs);
+            var deg = rad * Mathf.Rad2Deg;
+
+            
             if (_isSpawnShield)
             {
                 _isSpawnShield = false;
                 SpawnShield();
             }
+            
             if (_isSpawnMine)
             {
                 _isSpawnMine = false;
                 SpawnMine();                
-            }
+            }           
 
             Move(Time.fixedDeltaTime);   //тк стабильно 0.2   а если в Update дельтатайм - будет постоянно изменяться
-
 
             transform.Rotate(Vector3.up, Input.GetAxis("Horizontal") * _speedRotate * Time.fixedDeltaTime);
             //transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * speedRotate * Time.fixedDeltaTime, 0));  //поворачиваем через мышку
             //по Х - самого игрока, по У - от первого лица камеру
         }
 
-
         public void SpawnMine()
         {
-           var mineObj = Instantiate(_mine, mineSpawnPlace.position, mineSpawnPlace.rotation);
+            _isSpawnMine = false;
+            var mineObj = Instantiate(_mine, mineSpawnPlace.position, mineSpawnPlace.rotation);
            var mine = mineObj.GetComponent<Mine>();
            mine.Init(3);            
         }
 
         public void SpawnShield()
         {
+            _isSpawnShield = false;
             var shieldObj = Instantiate(shieldPrefab, spawnPosition.position, spawnPosition.rotation); //получили ссылку на объект
             var shield = shieldObj.GetComponent<Shield>();
             shield.Init(10 * level);
-
+            _event?.Invoke();  //проверка на нуль (?)
             shield.transform.SetParent(spawnPosition);
 
             #region Note
@@ -154,8 +178,8 @@ namespace MyProjectL
             _isFire = false;
             var shieldObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
             var shield = shieldObj.GetComponent<Bullet>();
-            shield.Init(_enemy.transform, 10, 0.6f);
-            _event?.Invoke();
+            shield.Init(_enemy.transform, 10, 1.2f);
+            //_event?.Invoke();
             Invoke(nameof(Reloading), _cooldown);
         }
 
@@ -165,13 +189,13 @@ namespace MyProjectL
         }
         public void Hurt(float _damage)
         {
-            print("Ouch: " + _damage);
+            print("OuchLemon: " + _damage);
 
             _health -= _damage; ;
 
             if (_health <= 0)
-            {
-                Destroy(gameObject);  //или сделать метод Die
+            {                
+                print("OuchLemon: " + "Dead....");
             }
         }
     }

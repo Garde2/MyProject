@@ -23,16 +23,22 @@ namespace MyProjectL
             _player = FindObjectOfType<Player>();
 
         }
-        private void Update()   //еще для мины надо сделать
+        private void Update()   
         {
             Ray ray = new Ray(_spawnPosition.position, transform.forward);
-            //Debug.DrawRay(_spawnPosition.position, transform.forward * 6, Color.blue);
-            if (Physics.Raycast(ray, out RaycastHit hit, 6))
+            
+            if (Physics.Raycast(ray, out RaycastHit hit, 4))
             {
                 Debug.DrawRay(_spawnPosition.position, transform.forward * hit.distance, Color.blue);
                 Debug.DrawRay(hit.point, hit.normal, Color.magenta);
 
                 if (hit.collider.CompareTag("Player"))
+                {
+                    if (_isFire)
+                        Fire();
+                }
+
+                if (hit.collider.CompareTag("Shield"))
                 {
                     if (_isFire)
                         Fire();
@@ -74,11 +80,11 @@ namespace MyProjectL
                 direction);
             var abs = Mathf.Abs(pr);
             var rad = Mathf.Sin(abs);
-            var deg = rad * Mathf.Rad2Deg;
+            var deg = rad * Mathf.Rad2Deg;  //*57.3
 
-            if (deg <= 45f)
+            if (deg <= 4f)
             {
-                Debug.Log("I see you");
+                //Debug.Log("I see you");
             }
 
             direction.Set(direction.x, 0, direction.z);
@@ -105,7 +111,7 @@ namespace MyProjectL
         }
         public void Hurt(float _damage)
         {
-            print("Ouch: " + _damage);
+            print("OuchTurrel: " + _damage);
 
             _health -= _damage; ;
 

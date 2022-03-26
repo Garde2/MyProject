@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -7367211862715524720}
   m_Layer: 0
   m_Name: Bullet
-  m_TagString: Shield
+  m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -110,6 +110,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damage: 3
+  _force: 100
+  _target: {fileID: 0}
+  _speed: 10
+  _rigidbody: {fileID: 0}
 --- !u!54 &-7367211862715524720
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -118,11 +122,11 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6861312825594362621}
   serializedVersion: 2
-  m_Mass: 0.002
+  m_Mass: 0.02
   m_Drag: 0
   m_AngularDrag: 10
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1

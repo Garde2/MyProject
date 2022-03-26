@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MyProjectL
 {
-    public class Trap : MonoBehaviour
+    public class BigTrap : MonoBehaviour
     {
         [SerializeField] private float _cooldown;
         [SerializeField] private float _damage = 3f;
@@ -12,18 +12,18 @@ namespace MyProjectL
 
         void Start()
         {
-            InvokeRepeating(nameof(Move1), 1f, _cooldown);   //только для имени метода, значение - не можем
+            InvokeRepeating(nameof(Move2), 1f, _cooldown);
         }
 
-        private void Move1()
+        private void Move2()
         {
             if (_isHide)
             {
-                transform.position = new Vector3(transform.position.x, -1, transform.position.z);
+                transform.position = new Vector3(transform.position.x, 0, transform.position.z);
             }
             else
             {
-                transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+                transform.position = new Vector3(transform.position.x, -1, transform.position.z);
             }
 
             _isHide = !_isHide;
@@ -32,12 +32,12 @@ namespace MyProjectL
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("Player"))
-            {                
+            {
                 var enemy = other.GetComponent<Player>();
                 enemy.Hurt(_damage);
             }
             if (other.gameObject.CompareTag("Shield"))
-            {                
+            {
                 var enemy = other.GetComponent<Shield>();
                 enemy.Hurt(_damage);
             }
@@ -53,21 +53,29 @@ namespace MyProjectL
 
         private void OnTriggerStay(Collider other)
         {
-            if (other.CompareTag("Player"))   // а в большом трапе нужно быть игроком и нажать 1, чтоб отключить, прицеплю ключ или табличку - "дерни за веревочку"
+            if (other.CompareTag("Player")) // или можно без кнопки, просто если зашел игрок
             {
-                CancelInvoke(nameof(Move1));
-                Debug.Log("ПиликаемTrap");
-                transform.position = new Vector3(transform.position.x, -1, transform.position.z);
+                if (Input.GetKeyDown(KeyCode.Keypad1))
+                {
+                    CancelInvoke(nameof(Move2));
+                    Debug.Log("ПиликаемTrap");
+                    transform.position = new Vector3(transform.position.x, -1, transform.position.z);
+                }
+                else
+                {
+                    //Debug.Log("Пиликаем");
+                }
             }
-        }                 
+            
+        }                   
 
-        private void OnCollisionEnter(Collision collision)                                                                
+        private void OnCollisionEnter(Collision collision)
         {
             // Debug.Log("Hit");
             if (collision.gameObject.TryGetComponent(out ITakeDamage takeDamage))  //коллизия(класс) - точка соприк объектов физич
-            {
+            {                
                 takeDamage.Hit(_damage);
-                Debug.Log("HitTrap!");
+                Debug.Log("HitBigTrap!");
             }
         }
     }

@@ -7,10 +7,9 @@ namespace MyProjectL
 {
     public class Door : MonoBehaviour
     {
-
         [SerializeField] private Transform _rotatePoint;
 
-        private bool _isStopped;
+        [SerializeField] private bool _isStopped;
 
         private void OnTriggerEnter(Collider other)  //ссылка на коллайдер который зашел в триггер
         {
@@ -42,13 +41,13 @@ namespace MyProjectL
         {
             if (other.CompareTag("Player"))
             {
-                if (Input.GetKeyDown(KeyCode.E))
+                if (Input.GetKeyDown(KeyCode.Keypad5))
                     _isStopped = true;
             }
             if (other.CompareTag("Enemy"))      //если не прописать энеми везде - дверь будет крутиться на следующий шаг
                                                 //вокруг оси при каждом вхождении в триггер
             {
-                if (Input.GetKeyDown(KeyCode.Q))
+                if (Input.GetKeyDown(KeyCode.Keypad6))
                     _isStopped = true;
             }
         }
