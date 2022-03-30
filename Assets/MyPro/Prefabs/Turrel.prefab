@@ -148,8 +148,8 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.3
-  m_Height: 1.8
+  m_Radius: 0.4
+  m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!114 &4526528865228558341
@@ -165,16 +165,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 0}
-  _speedRotate: 2
+  _speedRotate: 20
   _bulletPrefab: {fileID: 6861312825594362621, guid: 417154a45007ecf4195bf0a79b81874e,
     type: 3}
   _spawnPosition: {fileID: 6188507622367361750}
   _health: 10
   _cooldown: 1
   _isFire: 1
-  _event:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1001 &1250878220403237939
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
-using Random = UnityEngine.Random;
 
 namespace MyProjectL
 {
@@ -15,30 +14,85 @@ namespace MyProjectL
         [SerializeField] private Transform _spawnPosition;
         [SerializeField] private float _cooldown;
         [SerializeField] private float _health = 10f;
-        [SerializeField] private float _speedRotate = 200f;
+        //[SerializeField] private float _speedRotate = 200f;
         [SerializeField] private bool _isFire;
-        [SerializeField] private UnityEvent _event;  //делегат от юнити
+        //[SerializeField] private UnityEvent _event;  //делегат от юнити
         [SerializeField] private Color color;
         [SerializeField] private bool _isVisible;
         [SerializeField] private float _speed = 1.5f;
-
-        //[SerializeField] private NavMeshAgent _agent;
         [SerializeField] private Vector3 direction;
+        [SerializeField] private NavMeshAgent _agent;
+        
+        public enum OffMeshLinkMoveMethod   
+        {
+            Teleport,
+            NormalSpeed,
+            Parabola
+        }
+        [RequireComponent(typeof(NavMeshAgent))]
+        public class AgentLinkMover : MonoBehaviour
+        {
+            public OffMeshLinkMoveMethod method = OffMeshLinkMoveMethod.Parabola;
+
+            IEnumerator Start()
+            {
+                NavMeshAgent agent = GetComponent<NavMeshAgent>();
+                agent.autoTraverseOffMeshLink = false;
+                while (true)
+                {
+                    if (agent.isOnOffMeshLink)
+                    {
+                        if (method == OffMeshLinkMoveMethod.NormalSpeed)
+                            yield return StartCoroutine(NormalSpeed(agent));   // null - пропуск кадра в update, for Second/Fixed upd, или новыую corutine
+                        else if (method == OffMeshLinkMoveMethod.Parabola)
+                            yield return StartCoroutine(Parabola(agent, 2.0f, 0.5f));  //плюс телепорт, в 0.5f анимацию
+                        agent.CompleteOffMeshLink();
+                    }
+                    yield return null;
+                }
+            }
+
+            IEnumerator NormalSpeed(NavMeshAgent agent)   //можем задать тут JumpSpeed или анимацию прыжка (расстояние/время = скорость в прыжке)
+            {
+                OffMeshLinkData data = agent.currentOffMeshLinkData;
+                Vector3 endPos = data.endPos + Vector3.up * agent.baseOffset;
+                while (agent.transform.position != endPos)
+                {
+                    agent.transform.position = Vector3.MoveTowards(agent.transform.position, endPos, agent.speed * Time.deltaTime);
+                    yield return null;
+                }
+            }
+
+            IEnumerator Parabola(NavMeshAgent agent, float height, float duration)   //в duration анимацию
+            {
+                OffMeshLinkData data = agent.currentOffMeshLinkData;
+                Vector3 startPos = agent.transform.position;
+                Vector3 endPos = data.endPos + Vector3.up * agent.baseOffset;
+                float normalizedTime = 0.0f;
+                while (normalizedTime < 1.0f)
+                {
+                    float yOffset = height * 4.0f * (normalizedTime - normalizedTime * normalizedTime);
+                    agent.transform.position = Vector3.Lerp(startPos, endPos, normalizedTime) + yOffset * Vector3.up;
+                    normalizedTime += Time.deltaTime / duration;
+                    yield return null;
+                }
+            }
+        }      
 
         private void Awake()
         {
-            _player = FindObjectOfType<Player>(); //var q = new Quaternion(1, 1, 1, 1);               // x, y, z, w
-            //_agent = GetComponent<NavMeshAgent>();
+            _player = FindObjectOfType<Player>();          //var q = new Quaternion(1, 1, 1, 1);               // x, y, z, w
+            _agent = GetComponent<NavMeshAgent>();
         }
         private void Start()
         {
-            
-            //_agent.SetDestination(_player.transform.position);
-        }
+            //var direction = _player.transform.position - transform.position;
+            _agent.SetDestination(_player.transform.position);
+        }      
 
         private void Update()
         {
-            Ray ray = new Ray(_spawnPosition.position, transform.forward);  //откуда идет и направление  -работает с  - transform.position, _player.transform.position
+            Ray ray = new Ray(_spawnPosition.transform.position, transform.forward);  //откуда идет и направление  -работает с  - transform.position, _player.transform.position
 
             if (Physics.Raycast(ray, out RaycastHit hit, 4))  //луч, возвращаемая переменная, дистанция(можно убрать), слой (можем триггер со слоем),
                                                               //сталкив с колл или еще и с триггерами
@@ -58,34 +112,34 @@ namespace MyProjectL
                 {
                     if (_isFire)
                         Fire();
-                }
+                }                
+            }
 
-                if (Vector3.Distance(transform.position, _player.transform.position) < 4)    // без луча только эта радость в апдейте
-                {
-                    if (_isFire)
-                        Fire();
-                }
-
-                //if (NavMesh.SamplePosition(_agent.transform.position, out NavMeshHit navMeshHit, 0.2f, NavMesh.AllAreas))
-                //    print(NavMesh.GetAreaCost((int)Mathf.Log(navMeshHit.mask, 2)));
-
-
-                // int[] values = new int[5];
-                // var value = values[Random.Range(0, values.Length)];                   
-
-                /**
+            //if (NavMesh.SamplePosition(_agent.transform.position, out NavMeshHit navMeshHit, 1f, NavMesh.AllAreas))
+            //    print(NavMesh.GetAreaCost((int)Mathf.Log(navMeshHit.mask, 4)));
+            //все цены маршрута в Areas не изменяют скорость перемещения, а используются только для просчета в формуле. 
+            //находим ближ точку сетки из позиции радиусом 0.2f, все области. и печататем как в райкасте - помести полученные данные в компонет нав меш хит.
+            //если сетка найдена - вернет тру - получаем инфу: маску, цену области (в float) в areas, но он его принимает значения 3,4,5 итдл, то есть
+            //надо индекс. а маска возвращает бинарный код.
+            //можем привязать скорость к цене области.
+            /**
+                -----
+                  int[] values = new int[5];
+                var value = values[Random.Range(0, values.Length)];   
+                
                 if (Vector3.Distance(transform.position, _player.transform.position) < 3)
                 {
-                    //if (Input.GetMouseButtonDown(1))  //по-моему это надо на игрока прицепить
+                    if (Input.GetMouseButtonDown(1))  //по-моему это надо на игрока прицепить
                         Fire();
-                        //_isFire = true;
-                        
-                }
-                **/
-            }
+                        _isFire = true;                        
+                }   
+            } 
+            **/
         }
+       
         private void FixedUpdate()
         {
+            /**
             var direction =
                 _player.transform.position - transform.position;
 
@@ -103,29 +157,34 @@ namespace MyProjectL
                     0f);
 
             transform.rotation = Quaternion.LookRotation(stepRotate);
-
-            Move2(Time.fixedDeltaTime);                         
-
+             **/
+            //Move2(Time.fixedDeltaTime);
+            if (Vector3.Distance(transform.position, _player.transform.position) < 4)    // без луча только эта радость в апдейте
+            {
+                if (_isFire)
+                    Fire();
+            }
         }
+
         public void Hurt(float _damage)
         {
             print("OuchGhost: " + _damage);
 
-            _health -= _damage; ;
+            _health -= _damage;
 
             if (_health <= 0)
             {
-                Destroy(gameObject);  //или сделать метод Die
+                print("DeadGhost...");
+                Destroy(gameObject);  
             }
         }
-
         private void Fire()
         {
             _isFire = false;
             var shieldObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
             var shield = shieldObj.GetComponent<Bullet>();
             shield.Init(_player.transform, 10, 0.6f);
-            _event?.Invoke();  //проверка на нуль (?)
+            //event?.Invoke();  //проверка на нуль (?)
             Invoke(nameof(Reloading), _cooldown);
         }
 
@@ -136,12 +195,11 @@ namespace MyProjectL
         private void Move2(float delta)
         {
             var direction =
-                _player.transform.position + transform.position;
-            
+                _player.transform.position - transform.position;
 
             var fixedDirection = transform.TransformDirection(direction.normalized);
-            transform.position += _speed * delta * fixedDirection;   //переменная режет отрезок на маленькие, чтоб можно и в апдейте и в фикседапдейте использоватью вектор = направление * скорость
-
+            transform.position += _speed * delta * fixedDirection;   //переменная режет отрезок на маленькие, чтоб можно и
+                                                                     //в апдейте и в фикседапдейте использоватью вектор = направление * скорость
             //+= потому что мы к текущей позиции прибавляем прирост
             var parent = transform.parent;
         }

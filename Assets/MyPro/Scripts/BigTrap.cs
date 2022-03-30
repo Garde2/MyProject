@@ -58,7 +58,7 @@ namespace MyProjectL
                 if (Input.GetKeyDown(KeyCode.Keypad1))
                 {
                     CancelInvoke(nameof(Move2));
-                    Debug.Log("ПиликаемTrap");
+                    Debug.Log("Выключили большой Trap");
                     transform.position = new Vector3(transform.position.x, -1, transform.position.z);
                 }
                 else

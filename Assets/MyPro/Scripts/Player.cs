@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.AI;
 
 namespace MyProjectL
 {
@@ -22,26 +23,26 @@ namespace MyProjectL
         [SerializeField] private Enemy _enemy;
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _spawnPosition;
-       
-
-        public GameObject shieldPrefab;
-        public Transform spawnPosition;
-
-        [SerializeField] private bool _isSpawnShield;
-        
-        [HideInInspector] public int level = 1;  //так бы видели в юнити, но спрятали в инспекторе
-
-        [SerializeField] private Vector3 _direction;    //x - право, z - вперед, y - вверх
+        [SerializeField] private Vector3 _direction;    //x - право, z - вперед, y - вверх        
         [SerializeField] private float speed = 2f;
         [SerializeField] private float _speedRotate = 200f;           //для поворота мышкой
         [SerializeField] private bool _isSprint;
         [SerializeField] private UnityEvent _event2;
+        [SerializeField] private bool _isSpawnShield;
+        //[SerializeField] public NavMeshAgent JohnNavigation; //агент это для юнитов в стратегии, стандартная система навигации юнити не используем агенты. меш 2.0 почитать.
 
+        public GameObject shieldPrefab;
+        public Transform spawnPosition;
+
+        [HideInInspector] public int level = 1;  //так бы видели в юнити, но спрятали в инспекторе
+                
+        private void Awake()
+        {            
+            _enemy = FindObjectOfType<Enemy>();
+        }
 
         private void Start()
-        {
-            _enemy = FindObjectOfType<Enemy>();
-
+        {    
             _health += Time.deltaTime;
             if (Mathf.Approximately(_health, 0))    //+ - эпсилон, сравнивает
             {
@@ -79,22 +80,26 @@ namespace MyProjectL
 
             _direction.x = Input.GetAxis("Horizontal");
             _direction.z = Input.GetAxis("Vertical");
-            _isSprint = Input.GetKey(KeyCode.C);      //Input.GetButton("Sprint");
+            _isSprint = Input.GetButton("Sprint");
+            _direction.x = Input.GetAxis("Horizontal2");   // q, e
+
+            //_direction.y = Input.GetAxis("Jump");
 
             if (Input.GetKeyDown(KeyCode.Space))
                 GetComponent<Rigidbody>().AddForce(Vector3.up
                     * _jumpForce, ForceMode.Impulse);
             
             // Если нажата кнопка  
-            if (Input.GetKey(KeyCode.F))
+            if (Input.GetKeyDown(KeyCode.F))
                 _isSpawnMine = true;
 
-           // if (Input.GetKey(KeyCode.C)) _isSprint = true;   //так он не прекращает носиться, но если while - я поставила мину и игра встала. хотя в коде ничего не предвещало)
+            if (Input.GetButtonDown("Sprint"))
+                _isSprint = true;
+            //if (Input.GetKeyDown(KeyCode.C))
+            //_isSprint = true;   //так он не прекращает носиться, но если while - я поставила мину и игра встала. хотя в коде ничего не предвещало)
 
-            if (Input.GetKey(KeyCode.R))     //if (Input.GetMouseButtonDown(0)) кнопки мышки
+            if (Input.GetKeyDown(KeyCode.R))     //if (Input.GetMouseButtonDown(0)) кнопки мышки
                 _isSpawnShield = true;
-
-
             /** движение длинное
              if (Input.GetKey(KeyCode.W))
                 _direction.z = 1;                    //назад
@@ -139,7 +144,7 @@ namespace MyProjectL
             _isSpawnMine = false;
             var mineObj = Instantiate(_mine, mineSpawnPlace.position, mineSpawnPlace.rotation);
            var mine = mineObj.GetComponent<Mine>();
-           mine.Init(3);            
+           mine.Init(3);          
         }
 
         public void SpawnShield()
@@ -148,9 +153,8 @@ namespace MyProjectL
             var shieldObj = Instantiate(shieldPrefab, spawnPosition.position, spawnPosition.rotation); //получили ссылку на объект
             var shield = shieldObj.GetComponent<Shield>();
             shield.Init(10 * level);
-            _event?.Invoke();  //проверка на нуль (?)
+            //_event?.Invoke();  //проверка на нуль (?)    c эвентом наносит урон, а без - нет.
             shield.transform.SetParent(spawnPosition);
-
             #region Note
             //получилили ссылку на экз класса. какой класс мы ищем - совершенно конкретный - в <> Ищем класс щит , находящийся на объекте, его экземпляр, созданный Instantiate через new, внутренний конструктор
             //если будет искать трансформ, а не щит, то найдет компонент трансформ
@@ -176,10 +180,11 @@ namespace MyProjectL
         private void Fire()
         {
             _isFire = false;
-            var shieldObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
-            var shield = shieldObj.GetComponent<Bullet>();
-            shield.Init(_enemy.transform, 10, 1.2f);
-            //_event?.Invoke();
+            //transform.rotation = Quaternion.identity;
+            var bulletObj = Instantiate(_bulletPrefab, _spawnPosition.position, Quaternion.identity);  // ревьюер исправила Quaternion.identity! теперь стреляет спиной.
+            var bullet = bulletObj.GetComponent<Bullet>();
+            bullet.Init(_enemy.transform, 10, 0.6f);
+            _event2?.Invoke();
             Invoke(nameof(Reloading), _cooldown);
         }
 
@@ -191,7 +196,7 @@ namespace MyProjectL
         {
             print("OuchLemon: " + _damage);
 
-            _health -= _damage; ;
+            _health -= _damage;
 
             if (_health <= 0)
             {                

@@ -16,9 +16,9 @@ namespace MyProjectL
         [SerializeField] private float _cooldown;
         [SerializeField] private bool _isFire;
 
-        [SerializeField] private UnityEvent _event;
+        //[SerializeField] private UnityEvent _event;
 
-        void Start()
+        void Awake()
         {
             _player = FindObjectOfType<Player>();
 
@@ -95,13 +95,14 @@ namespace MyProjectL
 
             transform.rotation = Quaternion.LookRotation(stepRotate);
         }
+
         private void Fire()
         {
             _isFire = false;
             var shieldObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
             var shield = shieldObj.GetComponent<Bullet>();
             shield.Init(_player.transform, 10, 0.6f);
-            _event?.Invoke();
+            //_event?.Invoke();
             Invoke(nameof(Reloading), _cooldown);
         }
 
@@ -109,19 +110,18 @@ namespace MyProjectL
         {
             _isFire = true;
         }
+
         public void Hurt(float _damage)
         {
             print("OuchTurrel: " + _damage);
 
-            _health -= _damage; ;
+            _health -= _damage;
 
             if (_health <= 0)
             {
-                Destroy(gameObject); 
+                print("DeadTurrel...");
+                Destroy(gameObject);                
             }
         }
-
-
-
     }
 }

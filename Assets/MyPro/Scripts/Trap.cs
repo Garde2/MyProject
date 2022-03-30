@@ -56,7 +56,7 @@ namespace MyProjectL
             if (other.CompareTag("Player"))   // а в большом трапе нужно быть игроком и нажать 1, чтоб отключить, прицеплю ключ или табличку - "дерни за веревочку"
             {
                 CancelInvoke(nameof(Move1));
-                Debug.Log("ПиликаемTrap");
+                Debug.Log("Выключили Trap");
                 transform.position = new Vector3(transform.position.x, -1, transform.position.z);
             }
         }                 
