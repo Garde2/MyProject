@@ -81,9 +81,9 @@ namespace MyProjectL
         private void Fire()
         {
             _isFire = false;
-            var shieldObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
-            var shield = shieldObj.GetComponent<Bullet>();
-            shield.Init(_player.transform, 10, 0.6f);
+            var bulletObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
+            var bullet = bulletObj.GetComponent<Bullet>();
+            bullet.Init(10, 0.6f);
             //_event?.Invoke();
             Invoke(nameof(Reloading), _cooldown);
         }

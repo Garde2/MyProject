@@ -5,8 +5,10 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - _player: {instanceID: 0}
-  - _bulletPrefab: {instanceID: 0}
+  - _bulletPrefab: {fileID: 6861312825594362621, guid: 417154a45007ecf4195bf0a79b81874e,
+      type: 3}
   - _spawnPosition: {instanceID: 0}
+  - _agent: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

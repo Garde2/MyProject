@@ -9,7 +9,6 @@ namespace MyProjectL
     {
         [SerializeField] private float _damage = 3;
         [SerializeField] private float _force = 3;
-        [SerializeField] private Transform _target;
         [SerializeField] private float _speed;
         [SerializeField] private Rigidbody _rigidbody;
 
@@ -18,9 +17,8 @@ namespace MyProjectL
             _rigidbody = GetComponent<Rigidbody>();
         }
 
-        public void Init(Transform target, float lifeTime, float speed)
-        {
-            _target = target;
+        public void Init(float lifeTime, float speed)
+        {            
             _speed = speed;
             Destroy(gameObject, lifeTime);       //Destroy(this) - пуля останется, а компонент с неё удалится
 

@@ -10,6 +10,7 @@ TagManager:
   - Trap
   - BigTrap
   - Mine
+  - Health
   layers:
   - Default
   - TransparentFX

@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.AI;
+// using UnityEngine.Events;
+
 
 namespace MyProjectL
 {
@@ -11,35 +11,44 @@ namespace MyProjectL
     {
         //public KeyCode keySpell1;
         [SerializeField] private float _health = 100f;
-        [SerializeField] private float _cooldown = 1;
-        [SerializeField] private bool _isFire;        
-
+        [SerializeField] private float _cooldownTime1;
+        [SerializeField] private float _cooldownTime2;
+        [SerializeField] private bool _cooldown1;
+        [SerializeField] private bool _cooldown2;
+        [SerializeField] private bool _isFire;
         [SerializeField] private float _jumpForce = 10f;
-
         [SerializeField] private GameObject _mine; // Ќаша мина
         [SerializeField] private Transform mineSpawnPlace; // точка, где создаетс€ мина
         [SerializeField] private bool _isSpawnMine;
         [SerializeField] private Enemy _enemy;
-        [SerializeField] private GameObject _bulletPrefab;
-        [SerializeField] private Transform _spawnPosition;
-        [SerializeField] private Vector3 _direction;    //x - право, z - вперед, y - вверх        
+        [SerializeField] private Vector3 _direction;    //x - право, z - вперед, y - вверх
+        [SerializeField] private Vector3 _direction2;
         [SerializeField] private float speed = 2f;
         [SerializeField] private float _speedRotate = 200f;           //дл€ поворота мышкой
         [SerializeField] private bool _isSprint;
         //[SerializeField] private UnityEvent _event2;
-        [SerializeField] private bool _isSpawnShield;
+        [SerializeField] private bool _isSpawnShield;        
         [SerializeField] private bool _isAlive;
+        [SerializeField] private Animator _anim;
+
+        [SerializeField] private ShieldGenerator _shieldGenerator;
+        [SerializeField] private Gun _gun;
 
         //[SerializeField] public NavMeshAgent JohnNavigation; //агент это дл€ юнитов в стратегии, стандартна€ система навигации юнити не используем агенты. меш 2.0 почитать.
 
         public GameObject shieldPrefab;
-        public Transform spawnPosition;
+        public Transform spawnShieldPosition;
+        public GameObject bulletPrefab;
+        public Transform spawnBulletPosition;
 
         [HideInInspector] public int level = 1;  //так бы видели в юнити, но спр€тали в инспекторе
                 
         private void Awake()
         {            
             _enemy = FindObjectOfType<Enemy>();
+            _anim = GetComponent<Animator>();
+            _gun = new Gun(bulletPrefab, spawnBulletPosition);
+            _shieldGenerator =  new ShieldGenerator(10, shieldPrefab, spawnShieldPosition);
         }
 
         private void Start()
@@ -62,31 +71,32 @@ namespace MyProjectL
 
         void Update() //прив€зан к фпс                 
         {
-            Ray ray = new Ray(_spawnPosition.position, transform.forward);
+            /** RayCast
+             * Ray ray = new Ray(spawnBulletPosition.position, transform.forward);
 
             if (Physics.Raycast(ray, out RaycastHit hit, 4))
             {
-                Debug.DrawRay(_spawnPosition.position, transform.forward * hit.distance, Color.blue);
+                Debug.DrawRay(spawnBulletPosition.position, transform.forward * hit.distance, Color.blue);
                 Debug.DrawRay(hit.point, hit.normal, Color.magenta);
 
-                if (hit.collider.CompareTag("Enemy"))
-                {
-                    if (Input.GetMouseButtonDown(0))
+               if (hit.collider.CompareTag("Enemy"))
+               {
+                    if (Input.GetMouseButtonDown(0) && _cooldown2)
                     {
-                        if (_isFire)
-                            Fire();
+                        _isFire = true;                        
                     }
-                }                
-            }           
+               }                 
+            }
+            **/
 
             _direction.x = Input.GetAxis("Horizontal");
             _direction.z = Input.GetAxis("Vertical");
             _isSprint = Input.GetButton("Sprint");
-            _direction.x = Input.GetAxis("Horizontal2");   // q, e
+            _direction2.x = Input.GetAxis("Horizontal2");   // q, e
 
-            //_direction.y = Input.GetAxis("Jump");
+            _anim.SetBool("IsWalking", _direction != Vector3.zero);
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space))                       //_direction.y = Input.GetAxis("Jump");
                 GetComponent<Rigidbody>().AddForce(Vector3.up
                     * _jumpForce, ForceMode.Impulse);
             
@@ -99,7 +109,7 @@ namespace MyProjectL
             //if (Input.GetKeyDown(KeyCode.C))
             //_isSprint = true;   //так он не прекращает носитьс€, но если while - € поставила мину и игра встала. хот€ в коде ничего не предвещало)
 
-            if (Input.GetKeyDown(KeyCode.R))     //if (Input.GetMouseButtonDown(0)) кнопки мышки
+            if (Input.GetKeyDown(KeyCode.R) && _cooldown1)     //if (Input.GetMouseButtonDown(0)) кнопки мышки
                 _isSpawnShield = true;
             /** движение длинное
              if (Input.GetKey(KeyCode.W))
@@ -113,30 +123,38 @@ namespace MyProjectL
         }
         public void FixedUpdate()
         {
-            //var direction = _enemy.transform.position - transform.position;
-            //var pr = Vector3.Dot(transform.forward, direction);
-            //var abs = Mathf.Abs(pr);
-            //var rad = Mathf.Sin(abs);
-            //var deg = rad * Mathf.Rad2Deg;
-
+            /**старый код
+             * var direction = _enemy.transform.position - transform.position;
+            var pr = Vector3.Dot(transform.forward, direction);
+            var abs = Mathf.Abs(pr);
+            var rad = Mathf.Sin(abs);
+            var deg = rad * Mathf.Rad2Deg;
+            **/
             
             if (_isSpawnShield)
             {
                 _isSpawnShield = false;
-                SpawnShield();
+                _cooldown1 = false;
+                StartCoroutine(Cooldown1(_cooldownTime1, 1));
+                _shieldGenerator.Spawn();
             }
             
-            if (_isSpawnMine)
+            if (_isSpawnMine)  //добавить по аналогии про мину
             {
                 _isSpawnMine = false;
                 SpawnMine();                
-            }           
+            }
 
-            Move(Time.fixedDeltaTime);   //тк стабильно 0.2   а если в Update дельтатайм - будет посто€нно измен€тьс€
+            if (_isFire)  
+            {
+                _isFire = false;
+                _cooldown2 = false;
+                StartCoroutine(Cooldown1(_cooldownTime2, 2));
+                _gun.Spawn();
+            }                
 
-            transform.Rotate(Vector3.up, Input.GetAxis("Horizontal") * _speedRotate * Time.fixedDeltaTime);
-            //transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * speedRotate * Time.fixedDeltaTime, 0));  //поворачиваем через мышку
-            //по ’ - самого игрока, по ” - от первого лица камеру
+            Move(Time.fixedDeltaTime);   //тк стабильно 0.2   а если в Update дельтатайм - будет посто€нно измен€тьс€            
+            
         }
 
         public void SpawnMine()
@@ -147,7 +165,7 @@ namespace MyProjectL
             mine.Init(3);          
         }
 
-        public void SpawnShield()
+        /**public void SpawnShield()
         {
             _isSpawnShield = false;
             var shieldObj = Instantiate(shieldPrefab, spawnPosition.position, spawnPosition.rotation); //получили ссылку на объект
@@ -167,17 +185,34 @@ namespace MyProjectL
             //можем сменить родител€ shield.transfom.SetParent(spawnPosition) - станет дочерним к точке спауна
             #endregion
         }
+        **/
 
         public void Move(float delta)
         {
             var fixedDirection = transform.TransformDirection(_direction.normalized);
             transform.position += (_isSprint ? speed * 2 : speed) * delta * fixedDirection;   //переменна€ режет отрезок на маленькие, чтоб можно и в апдейте и в фикседапдейте использоватью вектор = направление * скорость
 
-            //+= потому что мы к текущей позиции прибавл€ем прирост
-            var parent = transform.parent;
+
+            /** старые куски
+             * += потому что мы к текущей позиции прибавл€ем прирост
+            var parent = transform.parent;       
+            **/
+        }
+        private IEnumerator Cooldown1(float time, int numSpell)
+        {
+            yield return new WaitForSeconds(time);
+            switch (numSpell)
+            {
+                case 1:
+                    _cooldown1 = true;
+                    break;
+                case 2:
+                    _cooldown2 = true;
+                    break;
+            }
         }
 
-        private void Fire()
+        /** private void Fire()
         {
             _isFire = false;
             //transform.rotation = Quaternion.identity;
@@ -192,6 +227,7 @@ namespace MyProjectL
         {
             _isFire = true;
         }
+        **/
         public void Hurt(float _damage)
         {
             print("OuchLemon: " + _damage);

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Events;
+//using UnityEngine.Events;
 
 namespace MyProjectL
 {
@@ -12,9 +12,10 @@ namespace MyProjectL
         [SerializeField] private Player _player;
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _spawnPosition;
-        [SerializeField] private float _cooldown;
+        
         [SerializeField] private float _health = 10f;
         [SerializeField] private float _speedRotate = 200f;
+        [SerializeField] private float _cooldown;
         [SerializeField] private bool _isFire;
         //[SerializeField] private UnityEvent _event;  //делегат от юнити
         [SerializeField] private Color color;
@@ -106,9 +107,8 @@ namespace MyProjectL
                 Debug.DrawRay(_spawnPosition.position, transform.forward * hit.distance, Color.blue);//можно еще продолжительность
                 Debug.DrawRay(hit.point, hit.normal, Color.magenta); //старт, направление
 
-                if (_isVisible)
-                {
-                    _isVisible = false;
+                if (_isVisible == true)
+                {                    
                     _agent.SetDestination(_player.transform.position);
 
                     if (hit.collider.CompareTag("Player"))  //можем дистанию фактическую, нормаль - в какую сторону напр плоскость
@@ -135,9 +135,7 @@ namespace MyProjectL
             можем привязать скорость к цене области.
              **/
             //int[] values = new int[5];
-            //var value = values[Random.Range(0, values.Length)];                                  
-            
-           
+            //var value = values[Random.Range(0, values.Length)];
         }
 
         private void FixedUpdate()
@@ -186,7 +184,7 @@ namespace MyProjectL
             _isFire = false;
             var shieldObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
             var shield = shieldObj.GetComponent<Bullet>();
-            shield.Init(_player.transform, 10, 0.6f);
+            shield.Init(10, 0.6f);
             //event?.Invoke();  //проверка на нуль (?)
             Invoke(nameof(Reloading), _cooldown);
         }
