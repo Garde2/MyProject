@@ -21,7 +21,9 @@ namespace MyProjectL
         }                
         void Update()
         {
-            if(navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)    //написать bool для преследования, если игрок входит в зону, то стопкорутина
+               //написать bool для преследования, если игрок входит в зону, то стопкорутина
+
+                if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)    //написать bool для преследования, если игрок входит в зону, то стопкорутина
                 //если выходит - продолжаем корутину с патрулем
             {
                 m_CurrentWaypiontIndex = (m_CurrentWaypiontIndex +1) % waypoints.Length;

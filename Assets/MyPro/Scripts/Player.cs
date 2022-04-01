@@ -7,13 +7,12 @@ using UnityEngine.AI;
 
 namespace MyProjectL
 {
-    public class Player : MonoBehaviour  //у монобих конструктор закрыт, наследника не вызвать. содает экземпл€р.
+    public class Player : MonoBehaviour, ITakeDamage  //у монобих конструктор закрыт, наследника не вызвать. содает экземпл€р.
     {
         //public KeyCode keySpell1;
         [SerializeField] private float _health = 100f;
         [SerializeField] private float _cooldown = 1;
-        [SerializeField] private bool _isFire;
-        [SerializeField] private UnityEvent _event;
+        [SerializeField] private bool _isFire;        
 
         [SerializeField] private float _jumpForce = 10f;
 
@@ -27,8 +26,10 @@ namespace MyProjectL
         [SerializeField] private float speed = 2f;
         [SerializeField] private float _speedRotate = 200f;           //дл€ поворота мышкой
         [SerializeField] private bool _isSprint;
-        [SerializeField] private UnityEvent _event2;
+        //[SerializeField] private UnityEvent _event2;
         [SerializeField] private bool _isSpawnShield;
+        [SerializeField] private bool _isAlive;
+
         //[SerializeField] public NavMeshAgent JohnNavigation; //агент это дл€ юнитов в стратегии, стандартна€ система навигации юнити не используем агенты. меш 2.0 почитать.
 
         public GameObject shieldPrefab;
@@ -112,12 +113,11 @@ namespace MyProjectL
         }
         public void FixedUpdate()
         {
-            var direction = _enemy.transform.position - transform.position;
-
-            var pr = Vector3.Dot(transform.forward, direction);
-            var abs = Mathf.Abs(pr);
-            var rad = Mathf.Sin(abs);
-            var deg = rad * Mathf.Rad2Deg;
+            //var direction = _enemy.transform.position - transform.position;
+            //var pr = Vector3.Dot(transform.forward, direction);
+            //var abs = Mathf.Abs(pr);
+            //var rad = Mathf.Sin(abs);
+            //var deg = rad * Mathf.Rad2Deg;
 
             
             if (_isSpawnShield)
@@ -143,8 +143,8 @@ namespace MyProjectL
         {
             _isSpawnMine = false;
             var mineObj = Instantiate(_mine, mineSpawnPlace.position, mineSpawnPlace.rotation);
-           var mine = mineObj.GetComponent<Mine>();
-           mine.Init(3);          
+            var mine = mineObj.GetComponent<Mine>();
+            mine.Init(3);          
         }
 
         public void SpawnShield()
@@ -152,8 +152,7 @@ namespace MyProjectL
             _isSpawnShield = false;
             var shieldObj = Instantiate(shieldPrefab, spawnPosition.position, spawnPosition.rotation); //получили ссылку на объект
             var shield = shieldObj.GetComponent<Shield>();
-            shield.Init(10 * level);
-            //_event?.Invoke();  //проверка на нуль (?)    c эвентом наносит урон, а без - нет.
+            shield.Init(10 * level);            
             shield.transform.SetParent(spawnPosition);
             #region Note
             //получилили ссылку на экз класса. какой класс мы ищем - совершенно конкретный - в <> »щем класс щит , наход€щийс€ на объекте, его экземпл€р, созданный Instantiate через new, внутренний конструктор
@@ -177,6 +176,7 @@ namespace MyProjectL
             //+= потому что мы к текущей позиции прибавл€ем прирост
             var parent = transform.parent;
         }
+
         private void Fire()
         {
             _isFire = false;
@@ -184,7 +184,7 @@ namespace MyProjectL
             var bulletObj = Instantiate(_bulletPrefab, _spawnPosition.position, Quaternion.identity);  // ревьюер исправила Quaternion.identity! теперь стрел€ет спиной.
             var bullet = bulletObj.GetComponent<Bullet>();
             bullet.Init(_enemy.transform, 10, 0.6f);
-            _event2?.Invoke();
+            //_event2?.Invoke();
             Invoke(nameof(Reloading), _cooldown);
         }
 

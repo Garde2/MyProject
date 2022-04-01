@@ -41,7 +41,7 @@ namespace MyProjectL
             if (collision.gameObject.TryGetComponent(out ITakeDamage takeDamage))  //коллизия(класс) - точка соприк объектов физич
             {
                 Debug.Log("HitBullet!");
-                takeDamage.Hit(_damage);
+                takeDamage.Hurt(_damage);
                 Destroy(gameObject);
             }
         }

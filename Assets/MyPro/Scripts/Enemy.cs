@@ -7,14 +7,14 @@ using UnityEngine.Events;
 
 namespace MyProjectL
 {
-    public class Enemy : MonoBehaviour
+    public class Enemy : MonoBehaviour, ITakeDamage
     {
         [SerializeField] private Player _player;
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _spawnPosition;
         [SerializeField] private float _cooldown;
         [SerializeField] private float _health = 10f;
-        //[SerializeField] private float _speedRotate = 200f;
+        [SerializeField] private float _speedRotate = 200f;
         [SerializeField] private bool _isFire;
         //[SerializeField] private UnityEvent _event;  //делегат от юнити
         [SerializeField] private Color color;
@@ -29,7 +29,9 @@ namespace MyProjectL
             NormalSpeed,
             Parabola
         }
+
         [RequireComponent(typeof(NavMeshAgent))]
+
         public class AgentLinkMover : MonoBehaviour
         {
             public OffMeshLinkMoveMethod method = OffMeshLinkMoveMethod.Parabola;
@@ -84,15 +86,18 @@ namespace MyProjectL
             _player = FindObjectOfType<Player>();          //var q = new Quaternion(1, 1, 1, 1);               // x, y, z, w
             _agent = GetComponent<NavMeshAgent>();
         }
-        private void Start()
-        {
+        //private void Start()
+        //{
             //var direction = _player.transform.position - transform.position;
-            _agent.SetDestination(_player.transform.position);
-        }      
+            //_agent.SetDestination(_player.transform.position);
+            //reviewer сказала, тут была ошибка, должно быть в апдейте, чтоб всегда следовали
+            //я переставила в старт после вебинара, тк дважды было сказано, что так нужно - иниц а Awake, использовать в Start. 
+            //Видимо, неверно поняла контекст.
+        //}
 
         private void Update()
-        {
-            Ray ray = new Ray(_spawnPosition.transform.position, transform.forward);  //откуда идет и направление  -работает с  - transform.position, _player.transform.position
+        {                       
+            Ray ray = new Ray(_spawnPosition.transform.position, transform.forward);  //откуда идет и направление 
 
             if (Physics.Raycast(ray, out RaycastHit hit, 4))  //луч, возвращаемая переменная, дистанция(можно убрать), слой (можем триггер со слоем),
                                                               //сталкив с колл или еще и с триггерами
@@ -101,45 +106,42 @@ namespace MyProjectL
                 Debug.DrawRay(_spawnPosition.position, transform.forward * hit.distance, Color.blue);//можно еще продолжительность
                 Debug.DrawRay(hit.point, hit.normal, Color.magenta); //старт, направление
 
-                if (hit.collider.CompareTag("Player"))  //можем дистанию фактическую, нормаль - в какую сторону напр плоскость
-                                                        //(разворач спецэфф в нужную сторону), удар, пойнт - координаты(можем спецэффект)
+                if (_isVisible)
                 {
-                    if (_isFire)
-                        Fire();
-                }
+                    _isVisible = false;
+                    _agent.SetDestination(_player.transform.position);
 
-                if (hit.collider.CompareTag("Shield"))
-                {
-                    if (_isFire)
-                        Fire();
-                }                
+                    if (hit.collider.CompareTag("Player"))  //можем дистанию фактическую, нормаль - в какую сторону напр плоскость
+                                                            //(разворач спецэфф в нужную сторону), удар, пойнт - координаты(можем спецэффект)
+                    {
+                        if (_isFire)
+                            Fire();
+                    }
+
+                    if (hit.collider.CompareTag("Shield"))
+                    {
+                        if (_isFire)
+                            Fire();
+                    }
+                }                                
             }
 
             //if (NavMesh.SamplePosition(_agent.transform.position, out NavMeshHit navMeshHit, 1f, NavMesh.AllAreas))
             //    print(NavMesh.GetAreaCost((int)Mathf.Log(navMeshHit.mask, 4)));
-            //все цены маршрута в Areas не изменяют скорость перемещения, а используются только для просчета в формуле. 
-            //находим ближ точку сетки из позиции радиусом 0.2f, все области. и печататем как в райкасте - помести полученные данные в компонет нав меш хит.
-            //если сетка найдена - вернет тру - получаем инфу: маску, цену области (в float) в areas, но он его принимает значения 3,4,5 итдл, то есть
-            //надо индекс. а маска возвращает бинарный код.
-            //можем привязать скорость к цене области.
-            /**
-                -----
-                  int[] values = new int[5];
-                var value = values[Random.Range(0, values.Length)];   
-                
-                if (Vector3.Distance(transform.position, _player.transform.position) < 3)
-                {
-                    if (Input.GetMouseButtonDown(1))  //по-моему это надо на игрока прицепить
-                        Fire();
-                        _isFire = true;                        
-                }   
-            } 
-            **/
+            /**  все цены маршрута в Areas не изменяют скорость перемещения, а используются только для просчета в формуле. 
+            находим ближ точку сетки из позиции радиусом 0.2f, все области. и печататем как в райкасте - помести полученные данные в компонет нав меш хит.
+            если сетка найдена - вернет тру - получаем инфу: маску, цену области (в float) в areas, но он его принимает значения 3,4,5 итдл, то есть
+            надо индекс. а маска возвращает бинарный код.
+            можем привязать скорость к цене области.
+             **/
+            //int[] values = new int[5];
+            //var value = values[Random.Range(0, values.Length)];                                  
+            
+           
         }
-       
+
         private void FixedUpdate()
-        {
-            /**
+        {            
             var direction =
                 _player.transform.position - transform.position;
 
@@ -157,7 +159,7 @@ namespace MyProjectL
                     0f);
 
             transform.rotation = Quaternion.LookRotation(stepRotate);
-             **/
+             
             //Move2(Time.fixedDeltaTime);
             if (Vector3.Distance(transform.position, _player.transform.position) < 4)    // без луча только эта радость в апдейте
             {
@@ -178,6 +180,7 @@ namespace MyProjectL
                 Destroy(gameObject);  
             }
         }
+
         private void Fire()
         {
             _isFire = false;
@@ -192,6 +195,7 @@ namespace MyProjectL
         {
             _isFire = true;
         }
+
         private void Move2(float delta)
         {
             var direction =

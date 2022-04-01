@@ -4,6 +4,6 @@ namespace MyProjectL   //интерфейс (вариант как класс или структура)
 {
     public interface ITakeDamage
     {
-        public void Hit(float damage);
+        public void Hurt(float _damage);
     }
 }

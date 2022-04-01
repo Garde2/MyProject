@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace MyProjectL
 {
-    public class Turrel : MonoBehaviour
+    public class Turrel : MonoBehaviour, ITakeDamage
     {
         [SerializeField] private Player _player;
         [SerializeField] private float _speedRotate;
@@ -54,24 +54,11 @@ namespace MyProjectL
             }
             **/
         }
-
-        /**void FixedUpdate()              // не update!
+       
+        void FixedUpdate()
         {
             //динамическое определение типов. если magnitude - а float автоматически, не для полей.
             //а внутри методов можно
-            
-            var direction = _player.transform.position - transform.position;
-            var stepRotate = Vector3.RotateTowards(transform.forward, //текущий вектор направл взгляда
-                    direction,                                        // конечная точка поворота
-                    _speedRotate * Time.fixedDeltaTime,               // скорость поворота
-                    0f);                                              // дельтамагнитуда всегда 0
-            
-            transform.rotation = Quaternion.LookRotation(stepRotate);
-            //transform.rotation = Quaternion.LookRotation(_player.transform.position - transform.position);
-            
-        }**/
-        void FixedUpdate()
-        {
             var direction =
                 _player.transform.position - transform.position;
 
@@ -80,12 +67,7 @@ namespace MyProjectL
                 direction);
             var abs = Mathf.Abs(pr);
             var rad = Mathf.Sin(abs);
-            var deg = rad * Mathf.Rad2Deg;  //*57.3
-
-            if (deg <= 4f)
-            {
-                //Debug.Log("I see you");
-            }
+            var deg = rad * Mathf.Rad2Deg;  //*57.3                        
 
             direction.Set(direction.x, 0, direction.z);
             var stepRotate = Vector3.RotateTowards(transform.forward,
@@ -119,9 +101,9 @@ namespace MyProjectL
 
             if (_health <= 0)
             {
-                print("DeadTurrel...");
+                print("DeadTurrelHurt...");
                 Destroy(gameObject);                
             }
-        }
+        }       
     }
 }

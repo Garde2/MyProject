@@ -29,7 +29,7 @@ namespace MyProjectL
         {
             if (collision.gameObject.TryGetComponent(out ITakeDamage takeDamage))  //коллизия(класс) - точка соприк объектов физич
             {
-                takeDamage.Hit(_damage);
+                takeDamage.Hurt(_damage);
                 Debug.Log("HitMine!");
                 Destroy(gameObject);
                 print("Mine Destroyed...Hitting");
