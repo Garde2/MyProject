@@ -7,9 +7,7 @@ namespace MyProjectL
 {
     public class Bullet : MonoBehaviour
     {
-        [SerializeField] private float _damage = 3;
-        [SerializeField] private float _force = 3;
-        [SerializeField] private float _speed;
+        [SerializeField] private float _damage = 3;              
         [SerializeField] private Rigidbody _rigidbody;
 
         private void Awake()
@@ -17,12 +15,11 @@ namespace MyProjectL
             _rigidbody = GetComponent<Rigidbody>();
         }
 
-        public void Init(float lifeTime, float speed)
-        {            
-            _speed = speed;
+        public void Init(float lifeTime, float force)
+        {                        
             Destroy(gameObject, lifeTime);       //Destroy(this) - пуля останется, а компонент с неё удалится
-
-            _rigidbody.AddForce(transform.forward * _force ); //сила и вращение + импульс            
+            _rigidbody.AddForce(transform.forward * force, ForceMode.Impulse ); //сила и вращение + импульс
+            Debug.Log("Spawn   Bullet!");
         }
         //void FixedUpdate()
         //{

@@ -46,8 +46,7 @@ namespace MyProjectL
             {
                 _damage = 0;
                 var enemy = other.GetComponent<Enemy>();
-                enemy.Hurt(_damage);
-                Destroy(gameObject);
+                enemy.Hurt(_damage);                
             }
         }
 

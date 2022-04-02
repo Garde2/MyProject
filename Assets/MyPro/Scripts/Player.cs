@@ -11,6 +11,7 @@ namespace MyProjectL
     {
         //public KeyCode keySpell1;
         [SerializeField] private float _health = 100f;
+        [SerializeField] private float _speedBullet = 3f;
         [SerializeField] private float _cooldownTime1;
         [SerializeField] private float _cooldownTime2;
         [SerializeField] private bool _cooldown1;
@@ -47,7 +48,7 @@ namespace MyProjectL
         {            
             _enemy = FindObjectOfType<Enemy>();
             _anim = GetComponent<Animator>();
-            _gun = new Gun(bulletPrefab, spawnBulletPosition);
+            _gun = new Gun(bulletPrefab, spawnBulletPosition, _speedBullet);
             _shieldGenerator =  new ShieldGenerator(10, shieldPrefab, spawnShieldPosition);
         }
 
@@ -71,28 +72,27 @@ namespace MyProjectL
 
         void Update() //привязан к фпс                 
         {
-            /** RayCast
-             * Ray ray = new Ray(spawnBulletPosition.position, transform.forward);
-
-            if (Physics.Raycast(ray, out RaycastHit hit, 4))
+            if (Input.GetMouseButtonDown(0) && _cooldown2)
             {
-                Debug.DrawRay(spawnBulletPosition.position, transform.forward * hit.distance, Color.blue);
-                Debug.DrawRay(hit.point, hit.normal, Color.magenta);
+                Ray ray = new Ray(spawnBulletPosition.position, transform.forward);
 
-               if (hit.collider.CompareTag("Enemy"))
-               {
-                    if (Input.GetMouseButtonDown(0) && _cooldown2)
+                if (Physics.Raycast(ray, out RaycastHit hit, 4))
+                {
+                    Debug.DrawRay(spawnBulletPosition.position, transform.forward * hit.distance, Color.blue);
+                    Debug.DrawRay(hit.point, hit.normal, Color.magenta);
+
+                    if (hit.collider.CompareTag("Enemy"))
                     {
-                        _isFire = true;                        
+                        _isFire = true;
                     }
-               }                 
-            }
-            **/
+                }
+            } 
+             
 
-            _direction.x = Input.GetAxis("Horizontal");
+            _direction2.x = Input.GetAxis("Horizontal");
             _direction.z = Input.GetAxis("Vertical");
-            _isSprint = Input.GetButton("Sprint");
-            _direction2.x = Input.GetAxis("Horizontal2");   // q, e
+            //_isSprint = Input.GetButton("Sprint");
+            _direction.x = Input.GetAxis("Horizontal2");   // q, e
 
             _anim.SetBool("IsWalking", _direction != Vector3.zero);
 
@@ -189,15 +189,16 @@ namespace MyProjectL
 
         public void Move(float delta)
         {
+            transform.Rotate(new Vector3(0, Input.GetAxis("Horizontal") * _speedRotate * delta, 0));  //дельта, тк в Move уже передаю, Horiontal +1 -1
             var fixedDirection = transform.TransformDirection(_direction.normalized);
             transform.position += (_isSprint ? speed * 2 : speed) * delta * fixedDirection;   //переменная режет отрезок на маленькие, чтоб можно и в апдейте и в фикседапдейте использоватью вектор = направление * скорость
-
 
             /** старые куски
              * += потому что мы к текущей позиции прибавляем прирост
             var parent = transform.parent;       
             **/
         }
+
         private IEnumerator Cooldown1(float time, int numSpell)
         {
             yield return new WaitForSeconds(time);

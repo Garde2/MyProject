@@ -46,11 +46,12 @@ namespace MyProjectL
             {
                 _damage = 0;
                 var enemy = other.GetComponent<Enemy>();
-                enemy.Hurt(_damage);
-                Destroy(gameObject);
+                enemy.Hurt(_damage);                
             }
         }
 
+
+        //trap на родителе, а в нем ссылки на шипы  ими управляет
         private void OnTriggerStay(Collider other)
         {
             if (other.CompareTag("Player")) // или можно без кнопки, просто если зашел игрок

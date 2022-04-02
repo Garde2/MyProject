@@ -110,8 +110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damage: 3
-  _force: 100
-  _target: {fileID: 0}
+  _force: 10
   _speed: 10
   _rigidbody: {fileID: 0}
 --- !u!54 &-7367211862715524720

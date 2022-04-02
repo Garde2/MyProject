@@ -9,7 +9,7 @@ namespace MyProjectL
     {
         [SerializeField] private Player _player;
         [SerializeField] private float _speedRotate;
-                
+        [SerializeField] private LayerMask _maskBullet; //enemy player
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _spawnPosition;
         [SerializeField] private float _health = 10;
@@ -81,8 +81,10 @@ namespace MyProjectL
         private void Fire()
         {
             _isFire = false;
+
             var bulletObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
             var bullet = bulletObj.GetComponent<Bullet>();
+            bulletObj.layer = LayerMask.NameToLayer("Player"); //или   bulletObj.layer = _maskBullet;
             bullet.Init(10, 0.6f);
             //_event?.Invoke();
             Invoke(nameof(Reloading), _cooldown);

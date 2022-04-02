@@ -171,11 +171,11 @@ namespace MyProjectL
             print("OuchGhost: " + _damage);
 
             _health -= _damage;
-
+            print($"Health {_health}");
             if (_health <= 0)
-            {
+            {                
+                Destroy(gameObject);
                 print("DeadGhost...");
-                Destroy(gameObject);  
             }
         }
 

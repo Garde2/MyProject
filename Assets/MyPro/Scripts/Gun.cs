@@ -7,15 +7,16 @@ namespace MyProjectL
 {
     public class Gun : WeaponFabric
     {
-        public Gun( GameObject spawnPrefab, Transform spawnPoint) : base(spawnPrefab, spawnPoint)
+        private float _speedBullet;
+        public Gun(GameObject spawnPrefab, Transform spawnPoint, float speedBullet) : base(spawnPrefab, spawnPoint)
         {
-
+            _speedBullet = speedBullet;
         }
         public override GameObject Spawn()
         {            
             var bulletObj = Object.Instantiate(_spawnPrefab, _spawnPoint.position, _spawnPoint.rotation);
             var bullet = bulletObj.GetComponent<Bullet>();
-            bullet.Init(10, 0.6f);
+            bullet.Init(10, _speedBullet);
             //event?.Invoke();  //проверка на нуль (?)
             //Invoke(nameof(Reloading), _cooldown);   invoke не можем тк не монобих
             return bulletObj;
