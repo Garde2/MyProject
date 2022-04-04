@@ -11,6 +11,8 @@ TagManager:
   - BigTrap
   - Mine
   - Health
+  - RedKey
+  - GreenKey
   layers:
   - Default
   - TransparentFX

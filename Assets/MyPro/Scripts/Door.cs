@@ -11,7 +11,6 @@ namespace MyProjectL
         [SerializeField] private Animator _anim;
         [SerializeField] private Transform _rotatePoint;
         [SerializeField] private bool _isStopped;
-
         private readonly int IsOpen = Animator.StringToHash("IsOpen"); //экономит такты процессов
 
         private void Awake()

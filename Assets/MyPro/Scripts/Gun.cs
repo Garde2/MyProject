@@ -16,9 +16,7 @@ namespace MyProjectL
         {            
             var bulletObj = Object.Instantiate(_spawnPrefab, _spawnPoint.position, _spawnPoint.rotation);
             var bullet = bulletObj.GetComponent<Bullet>();
-            bullet.Init(10, _speedBullet);
-            //event?.Invoke();  //проверка на нуль (?)
-            //Invoke(nameof(Reloading), _cooldown);   invoke не можем тк не монобих
+            bullet.Init(10, _speedBullet);            
             return bulletObj;
         }
     }

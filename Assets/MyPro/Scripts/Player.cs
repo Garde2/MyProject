@@ -7,42 +7,44 @@ using UnityEngine;
 
 namespace MyProjectL
 {
-    public class Player : MonoBehaviour, ITakeDamage  //у монобих конструктор закрыт, наследника не вызвать. содает экземпляр.
+    public class Player : MonoBehaviour, ITakeDamage                                      //у монобих конструктор закрыт, наследника не вызвать. содает экземпляр.
     {
         //public KeyCode keySpell1;
-        [SerializeField] private float _health = 100f;
-        [SerializeField] private float _speedBullet = 3f;
-        [SerializeField] private float _cooldownTime1;
-        [SerializeField] private float _cooldownTime2;
-        [SerializeField] private bool _cooldown1;
-        [SerializeField] private bool _cooldown2;
-        [SerializeField] private bool _isFire;
-        [SerializeField] private float _jumpForce = 10f;
-        [SerializeField] private GameObject _mine; // Наша мина
-        [SerializeField] private Transform mineSpawnPlace; // точка, где создается мина
-        [SerializeField] private bool _isSpawnMine;
-        [SerializeField] private Enemy _enemy;
-        [SerializeField] private Vector3 _direction;    //x - право, z - вперед, y - вверх
+        [SerializeField] private Vector3 _direction;                                     //x - право, z - вперед, y - вверх
         [SerializeField] private Vector3 _direction2;
+        [SerializeField] private float _health = 100f;        
+        [SerializeField] private float _jumpForce = 10f;       
         [SerializeField] private float speed = 2f;
-        [SerializeField] private float _speedRotate = 200f;           //для поворота мышкой
-        [SerializeField] private bool _isSprint;
-        //[SerializeField] private UnityEvent _event2;
-        [SerializeField] private bool _isSpawnShield;        
+        [SerializeField] private float _speedRotate = 200f;                             //для поворота мышкой
+        [SerializeField] private bool _isSprint;               
         [SerializeField] private bool _isAlive;
+        [SerializeField] private bool _isFire;
+
         [SerializeField] private Animator _anim;
+        [SerializeField] private Enemy _enemy;
 
-        [SerializeField] private ShieldGenerator _shieldGenerator;
-        [SerializeField] private Gun _gun;
-
-        //[SerializeField] public NavMeshAgent JohnNavigation; //агент это для юнитов в стратегии, стандартная система навигации юнити не используем агенты. меш 2.0 почитать.
-
+        [SerializeField] private ShieldGenerator _shieldGenerator;                     //[SerializeField] public NavMeshAgent JohnNavigation; //агент это для юнитов в стратегии, стандартная система навигации юнити не используем агенты. меш 2.0 почитать.
         public GameObject shieldPrefab;
         public Transform spawnShieldPosition;
+        [SerializeField] private bool _isSpawnShield;
+        [SerializeField] private float _cooldownTime1;
+        [SerializeField] private bool _cooldown1;
+
+        [SerializeField] private Gun _gun;
         public GameObject bulletPrefab;
         public Transform spawnBulletPosition;
+        [SerializeField] private float _speedBullet = 3f;
+        [SerializeField] private float _cooldownTime2;
+        [SerializeField] private bool _cooldown2;
 
-        [HideInInspector] public int level = 1;  //так бы видели в юнити, но спрятали в инспекторе
+        [SerializeField] private MineGenerator _mineGenerator;
+        public GameObject minePrefab;
+        public Transform spawnMinePosition;
+        [SerializeField] private bool _isSpawnMine;
+        [SerializeField] private float _cooldownTime3;
+        [SerializeField] private bool _cooldown3;
+
+        [HideInInspector] public int level = 1;                                       //так бы видели в юнити, но спрятали в инспекторе
                 
         private void Awake()
         {            
@@ -86,30 +88,25 @@ namespace MyProjectL
                         _isFire = true;
                     }
                 }
-            } 
-             
+            }              
 
             _direction2.x = Input.GetAxis("Horizontal");
-            _direction.z = Input.GetAxis("Vertical");
-            //_isSprint = Input.GetButton("Sprint");
-            _direction.x = Input.GetAxis("Horizontal2");   // q, e
+            _direction.z = Input.GetAxis("Vertical");                  //_isSprint = Input.GetButton("Sprint");                                                       
+            _direction.x = Input.GetAxis("Horizontal2");               // q, e
 
             _anim.SetBool("IsWalking", _direction != Vector3.zero);
 
             if (Input.GetKeyDown(KeyCode.Space))                       //_direction.y = Input.GetAxis("Jump");
                 GetComponent<Rigidbody>().AddForce(Vector3.up
                     * _jumpForce, ForceMode.Impulse);
-            
-            // Если нажата кнопка  
-            if (Input.GetKeyDown(KeyCode.F))
+                        
+            if (Input.GetKeyDown(KeyCode.F) && _cooldown3)                           // Если нажата кнопка  
                 _isSpawnMine = true;
 
-            if (Input.GetButtonDown("Sprint"))
+            if (Input.GetButtonDown("Sprint"))                         //if (Input.GetKeyDown(KeyCode.C))
                 _isSprint = true;
-            //if (Input.GetKeyDown(KeyCode.C))
-            //_isSprint = true;   //так он не прекращает носиться, но если while - я поставила мину и игра встала. хотя в коде ничего не предвещало)
 
-            if (Input.GetKeyDown(KeyCode.R) && _cooldown1)     //if (Input.GetMouseButtonDown(0)) кнопки мышки
+            if (Input.GetKeyDown(KeyCode.R) && _cooldown1)              //if (Input.GetMouseButtonDown(0)) кнопки мышки
                 _isSpawnShield = true;
             /** движение длинное
              if (Input.GetKey(KeyCode.W))
@@ -119,8 +116,8 @@ namespace MyProjectL
             else
                 _direction.z = 0;                //если не нажата - стоим
             */
-
         }
+
         public void FixedUpdate()
         {
             /**старый код
@@ -139,10 +136,12 @@ namespace MyProjectL
                 _shieldGenerator.Spawn();
             }
             
-            if (_isSpawnMine)  //добавить по аналогии про мину
+            if (_isSpawnMine)                                          
             {
                 _isSpawnMine = false;
-                SpawnMine();                
+                _cooldown3 = false;
+                StartCoroutine(Cooldown1(_cooldownTime3, 3));
+                _mineGenerator.Spawn();
             }
 
             if (_isFire)  
@@ -156,7 +155,7 @@ namespace MyProjectL
             Move(Time.fixedDeltaTime);   //тк стабильно 0.2   а если в Update дельтатайм - будет постоянно изменяться            
             
         }
-
+        /** Shield/Mine
         public void SpawnMine()
         {
             _isSpawnMine = false;
@@ -165,7 +164,7 @@ namespace MyProjectL
             mine.Init(3);          
         }
 
-        /**public void SpawnShield()
+        public void SpawnShield()
         {
             _isSpawnShield = false;
             var shieldObj = Instantiate(shieldPrefab, spawnPosition.position, spawnPosition.rotation); //получили ссылку на объект
@@ -209,6 +208,9 @@ namespace MyProjectL
                     break;
                 case 2:
                     _cooldown2 = true;
+                    break;
+                case 3:
+                    _cooldown3 = true;
                     break;
             }
         }
