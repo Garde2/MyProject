@@ -10,11 +10,13 @@ namespace MyProjectL
     public class Enemy : MonoBehaviour, ITakeDamage
     {
         [SerializeField] private Player _player;
+        [SerializeField] private float _speedRotate;
+        [SerializeField] private LayerMask _maskBullet;
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _spawnPosition;
         
         [SerializeField] private float _health = 10f;
-        [SerializeField] private float _speedRotate = 200f;
+       
         [SerializeField] private float _cooldown;
         [SerializeField] private bool _isFire;
         //[SerializeField] private UnityEvent _event;  //делегат от юнити
@@ -100,7 +102,7 @@ namespace MyProjectL
         {                       
             Ray ray = new Ray(_spawnPosition.transform.position, transform.forward);  //откуда идет и направление 
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 4))  //луч, возвращаемая переменная, дистанция(можно убрать), слой (можем триггер со слоем),
+            if (Physics.Raycast(ray, out RaycastHit hit, 3))  //луч, возвращаемая переменная, дистанция(можно убрать), слой (можем триггер со слоем),
                                                               //сталкив с колл или еще и с триггерами
                                                               //первый объект в луче берем. RaycastAll - все объекты в луче с кот он столкнулся - массив
             {
@@ -159,19 +161,19 @@ namespace MyProjectL
             transform.rotation = Quaternion.LookRotation(stepRotate);
              
             //Move2(Time.fixedDeltaTime);
-            if (Vector3.Distance(transform.position, _player.transform.position) < 4)    // без луча только эта радость в апдейте
-            {
-                if (_isFire)
-                    Fire();
-            }
+            //if (Vector3.Distance(transform.position, _player.transform.position) < 4)    // без луча только эта радость в апдейте
+            //{
+             //   if (_isFire)
+             //       Fire();
+            //}
         }
 
         public void Hurt(float _damage)
         {
-            print("OuchGhost: " + _damage);
+            //print("OuchGhost: " + _damage);
 
             _health -= _damage;
-            print($"Health {_health}");
+            print($"HealthGhost {_health}");
             if (_health <= 0)
             {                
                 Destroy(gameObject);
@@ -182,10 +184,12 @@ namespace MyProjectL
         private void Fire()
         {
             _isFire = false;
-            var shieldObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
-            var shield = shieldObj.GetComponent<Bullet>();
-            shield.Init(10, 0.6f);
-            //event?.Invoke();  //проверка на нуль (?)
+
+            var bulletObj = Instantiate(_bulletPrefab, _spawnPosition.position, _spawnPosition.rotation);
+            var bullet = bulletObj.GetComponent<Bullet>();
+            bulletObj.layer = LayerMask.NameToLayer("Player"); //или   bulletObj.layer = _maskBullet;
+            bullet.Init(10, 0.6f);
+            //_event?.Invoke();
             Invoke(nameof(Reloading), _cooldown);
         }
 

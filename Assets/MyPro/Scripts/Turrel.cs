@@ -97,9 +97,8 @@ namespace MyProjectL
 
         public void Hurt(float _damage)
         {
-            print("OuchTurrel: " + _damage);
-
             _health -= _damage;
+            print($"HealthTurrel {_health}");
 
             if (_health <= 0)
             {

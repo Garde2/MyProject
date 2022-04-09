@@ -398,8 +398,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7945208101231055000}
-  - component: {fileID: 8704335033587486024}
   - component: {fileID: -9137031566698012863}
+  - component: {fileID: 5090403263361770459}
   m_Layer: 0
   m_Name: GreenKey
   m_TagString: GreenKey
@@ -423,19 +423,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!65 &8704335033587486024
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7945208101231055001}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.6211186, y: 0.101567686, z: 0.3976148}
-  m_Center: {x: -0.12348381, y: 0.0025862157, z: 0.002343297}
 --- !u!111 &-9137031566698012863
 Animation:
   m_ObjectHideFlags: 0
@@ -452,6 +439,19 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 1
+--- !u!135 &5090403263361770459
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7945208101231055001}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: -0.15, y: 0, z: 0}
 --- !u!1 &8619759927268702499
 GameObject:
   m_ObjectHideFlags: 0

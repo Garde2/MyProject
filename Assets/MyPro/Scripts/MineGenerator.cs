@@ -5,8 +5,8 @@ using MyProjectL;
 
 public class MineGenerator : WeaponFabric
 {
-    [SerializeField] private int _level;
-    
+    [SerializeField] private int _level;   
+
 
     public MineGenerator(int level, GameObject spawnPrefab, Transform spawnPoint) : base(spawnPrefab, spawnPoint)
     {
@@ -18,8 +18,13 @@ public class MineGenerator : WeaponFabric
         
         var mineObj = Object.Instantiate(_spawnPrefab, _spawnPoint.position, _spawnPoint.rotation); //получили ссылку на объект
         var mine = mineObj.GetComponent<Mine>();
-        mine.Init(1 * _level);
-        mine.transform.SetParent(_spawnPoint);
+        mineObj.layer = LayerMask.NameToLayer("Enemy");
+        if (mine == null)
+        {
+            mine.Init(1 * 2 * _level);
+        }
+        
+        //mine.transform.SetParent(_spawnPoint);
         #region Note
         //получилили ссылку на экз класса. какой класс мы ищем - совершенно конкретный - в <> »щем класс щит , наход€щийс€ на объекте, его экземпл€р, созданный Instantiate через new, внутренний конструктор
         //если будет искать трансформ, а не щит, то найдет компонент трансформ

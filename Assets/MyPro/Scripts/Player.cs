@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 // using UnityEngine.Events;
 
 
@@ -12,13 +13,14 @@ namespace MyProjectL
         //public KeyCode keySpell1;
         [SerializeField] private Vector3 _direction;                                     //x - право, z - вперед, y - вверх
         [SerializeField] private Vector3 _direction2;
-        [SerializeField] private float _health = 100f;        
-        [SerializeField] private float _jumpForce = 10f;       
-        [SerializeField] private float speed = 2f;
+        [SerializeField] private float _health;        
+        [SerializeField] private float _jumpForce;       
+        [SerializeField] private float speed;
         [SerializeField] private float _speedRotate = 200f;                             //для поворота мышкой
         [SerializeField] private bool _isSprint;               
         [SerializeField] private bool _isAlive;
         [SerializeField] private bool _isFire;
+        
 
         [SerializeField] private Animator _anim;
         [SerializeField] private Enemy _enemy;
@@ -45,13 +47,22 @@ namespace MyProjectL
         [SerializeField] private bool _cooldown3;
 
         [HideInInspector] public int level = 1;                                       //так бы видели в юнити, но спрятали в инспекторе
-                
+
+        //public GameObject _greenKey;
+        //public bool _green_Key;
+
+        public Image UIHP;
+        public float HP = 1f;
+        public Text HPBottleT;       //пишем сколько
+        public float HPBottle = 0f;  //колво бутылочек
+
         private void Awake()
         {            
             _enemy = FindObjectOfType<Enemy>();
             _anim = GetComponent<Animator>();
             _gun = new Gun(bulletPrefab, spawnBulletPosition, _speedBullet);
             _shieldGenerator =  new ShieldGenerator(10, shieldPrefab, spawnShieldPosition);
+            _mineGenerator = new MineGenerator(10, minePrefab, spawnMinePosition);
         }
 
         private void Start()
@@ -74,6 +85,19 @@ namespace MyProjectL
 
         void Update() //привязан к фпс                 
         {
+            if (Input.GetKeyDown(KeyCode.V) && HPBottle > 0f && _health < 100f)
+            {
+                _health = _health + 20f;
+                HPBottle = HPBottle - 1f;
+                if (_health > 100f)
+                {
+                    _health = 100f;
+                }
+            }
+            
+            HPBottleT.text = "" + HPBottle;
+            UIHP.fillAmount = HP;
+
             if (Input.GetMouseButtonDown(0) && _cooldown2)
             {
                 Ray ray = new Ray(spawnBulletPosition.position, transform.forward);
@@ -105,6 +129,8 @@ namespace MyProjectL
 
             if (Input.GetButtonDown("Sprint"))                         //if (Input.GetKeyDown(KeyCode.C))
                 _isSprint = true;
+            if (Input.GetButtonUp("Sprint"))
+                _isSprint = false;
 
             if (Input.GetKeyDown(KeyCode.R) && _cooldown1)              //if (Input.GetMouseButtonDown(0)) кнопки мышки
                 _isSpawnShield = true;
@@ -242,6 +268,19 @@ namespace MyProjectL
                 print("OuchLemon: " + "Dead....");
             }
         }
+
+        void OnTriggerStay(Collider other)
+        {
+            if (other.CompareTag("Trap"))
+            {
+                _health -= Time.deltaTime / 10f;
+            }
+            if (other.CompareTag("HPBottle") && Input.GetKeyDown(KeyCode.Z))
+            {
+                HPBottle = HPBottle + 1f;
+            }
+        }
+
     }
 }
 

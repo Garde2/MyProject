@@ -19,7 +19,7 @@ namespace MyProjectL
         {                        
             Destroy(gameObject, lifeTime);       //Destroy(this) - пуля останется, а компонент с неё удалится
             _rigidbody.AddForce(transform.forward * force, ForceMode.Impulse ); //сила и вращение + импульс
-            Debug.Log("Spawn   Bullet!");
+            //Debug.Log("Spawn   Bullet!");
         }
         //void FixedUpdate()
         //{

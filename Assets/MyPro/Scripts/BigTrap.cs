@@ -9,6 +9,7 @@ namespace MyProjectL
         [SerializeField] private float _cooldown;
         [SerializeField] private float _damage = 3f;
         [SerializeField] private bool _isHide;
+        //[SerializeField] private LayerMask _trap;
 
         void Start()
         {
@@ -40,13 +41,6 @@ namespace MyProjectL
             {
                 var enemy = other.GetComponent<Shield>();
                 enemy.Hurt(_damage);
-            }
-
-            if (other.gameObject.CompareTag("Enemy"))
-            {
-                _damage = 0;
-                var enemy = other.GetComponent<Enemy>();
-                enemy.Hurt(_damage);                
             }
         }
 

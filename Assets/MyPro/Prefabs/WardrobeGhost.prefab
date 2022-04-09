@@ -359,10 +359,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 0}
+  _speedRotate: 0
+  _maskBullet:
+    serializedVersion: 2
+    m_Bits: 0
   _bulletPrefab: {fileID: 6861312825594362621, guid: 417154a45007ecf4195bf0a79b81874e,
     type: 3}
   _spawnPosition: {fileID: 1977316727844089638}
   _health: 10
+  _cooldown: 0
+  _isFire: 0
+  color: {r: 0, g: 0, b: 0, a: 0}
+  _isVisible: 0
+  _speed: 1.5
+  direction: {x: 0, y: 0, z: 0}
+  _agent: {fileID: 0}
 --- !u!54 &3864786822025656921
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -428,7 +439,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &4403952012184539146
 Transform:

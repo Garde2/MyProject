@@ -16,6 +16,7 @@ namespace MyProjectL
         {            
             var bulletObj = Object.Instantiate(_spawnPrefab, _spawnPoint.position, _spawnPoint.rotation);
             var bullet = bulletObj.GetComponent<Bullet>();
+            bulletObj.layer = LayerMask.NameToLayer("Enemy");
             bullet.Init(10, _speedBullet);            
             return bulletObj;
         }

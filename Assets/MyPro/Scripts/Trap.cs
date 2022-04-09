@@ -9,6 +9,7 @@ namespace MyProjectL
         [SerializeField] private float _cooldown;
         [SerializeField] private float _damage = 3f;
         [SerializeField] private bool _isHide;
+        //[SerializeField] private LayerMask _trap;
 
         void Start()
         {
@@ -31,23 +32,16 @@ namespace MyProjectL
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.CompareTag("Player"))
-            {                
+            if (other.gameObject.CompareTag("Player"))             //if LayerMask.NameToLayer("Player") - hurt.
+            {
                 var enemy = other.GetComponent<Player>();
                 enemy.Hurt(_damage);
             }
             if (other.gameObject.CompareTag("Shield"))
-            {                
+            {
                 var enemy = other.GetComponent<Shield>();
                 enemy.Hurt(_damage);
-            }
-
-            if (other.gameObject.CompareTag("Enemy"))
-            {
-                _damage = 0;
-                var enemy = other.GetComponent<Enemy>();
-                enemy.Hurt(_damage);                
-            }
+            }            
         }
 
         private void OnTriggerStay(Collider other)
@@ -58,16 +52,7 @@ namespace MyProjectL
                 Debug.Log("Выключили Trap");
                 transform.position = new Vector3(transform.position.x, -1, transform.position.z);
             }
-        }                 
-
-        private void OnCollisionEnter(Collision collision)                                                                
-        {
-            // Debug.Log("Hit");
-            if (collision.gameObject.TryGetComponent(out ITakeDamage takeDamage))  //коллизия(класс) - точка соприк объектов физич
-            {
-                takeDamage.Hurt(_damage);
-                Debug.Log("HitTrap!");
-            }
         }
+        
     }
 }

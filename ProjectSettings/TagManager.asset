@@ -10,9 +10,12 @@ TagManager:
   - Trap
   - BigTrap
   - Mine
-  - Health
   - RedKey
   - GreenKey
+  - VioletKey
+  - DoorCorridor
+  - HPBottle
+  - HPBottleT
   layers:
   - Default
   - TransparentFX

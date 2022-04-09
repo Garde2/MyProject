@@ -81,6 +81,9 @@ MonoBehaviour:
   _lifeTime: 3
   _enemy: {fileID: 0}
   _rigidbody: {fileID: 0}
+  _maskMine:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!54 &1756521519725190272
 Rigidbody:
   m_ObjectHideFlags: 0
