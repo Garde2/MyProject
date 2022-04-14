@@ -9,12 +9,7 @@ namespace MyProjectL
     public class HealthBar : MonoBehaviour
     {
         public Image bar;
-        public float _fill;
-                
-        void Start()
-        {
-            _fill = 1f;
-        }
+        public float _fill = 1f;  
 
         void Update()
         {

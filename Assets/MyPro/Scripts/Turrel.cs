@@ -27,7 +27,7 @@ namespace MyProjectL
         {
             Ray ray = new Ray(_spawnPosition.position, transform.forward);
             
-            if (Physics.Raycast(ray, out RaycastHit hit, 4))
+            if (Physics.Raycast(ray, out RaycastHit hit, 5))
             {
                 Debug.DrawRay(_spawnPosition.position, transform.forward * hit.distance, Color.blue);
                 Debug.DrawRay(hit.point, hit.normal, Color.magenta);

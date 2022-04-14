@@ -16,6 +16,10 @@ TagManager:
   - DoorCorridor
   - HPBottle
   - HPBottleT
+  - GreenKeyT
+  - VioletKeyT
+  - Door
+  - DoorLevel
   layers:
   - Default
   - TransparentFX

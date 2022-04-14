@@ -14,7 +14,7 @@ namespace MyProjectL
         {
             if(other.tag == "Player" && Input.GetKeyDown(KeyCode.Z))
             {
-                DestroyImmediate(healthPrefab);
+                Destroy(this.gameObject);
             }
         }
 

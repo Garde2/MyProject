@@ -158,20 +158,12 @@ namespace MyProjectL
                     _speedRotate * Time.fixedDeltaTime,
                     0f);
 
-            transform.rotation = Quaternion.LookRotation(stepRotate);
-             
-            //Move2(Time.fixedDeltaTime);
-            //if (Vector3.Distance(transform.position, _player.transform.position) < 4)    // без луча только эта радость в апдейте
-            //{
-             //   if (_isFire)
-             //       Fire();
-            //}
+            transform.rotation = Quaternion.LookRotation(stepRotate);            
         }
 
         public void Hurt(float _damage)
         {
             //print("OuchGhost: " + _damage);
-
             _health -= _damage;
             print($"HealthGhost {_health}");
             if (_health <= 0)

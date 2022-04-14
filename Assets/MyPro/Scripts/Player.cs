@@ -20,6 +20,8 @@ namespace MyProjectL
         [SerializeField] private bool _isSprint;               
         [SerializeField] private bool _isAlive;
         [SerializeField] private bool _isFire;
+        private float _maxhealth;
+        [SerializeField] private HealthBar _healthBar;
         
 
         [SerializeField] private Animator _anim;
@@ -56,17 +58,24 @@ namespace MyProjectL
         public Text HPBottleT;       //пишем сколько
         public float HPBottle = 0f;  //колво бутылочек
 
+        public Image UIGK;
+        public Image UIVK;
+        public Text UIgkT;
+        public Text UIvkT;
+
         private void Awake()
-        {            
+        {
+            _maxhealth = _health;
             _enemy = FindObjectOfType<Enemy>();
             _anim = GetComponent<Animator>();
+            _healthBar = GetComponent<HealthBar>();
             _gun = new Gun(bulletPrefab, spawnBulletPosition, _speedBullet);
             _shieldGenerator =  new ShieldGenerator(10, shieldPrefab, spawnShieldPosition);
             _mineGenerator = new MineGenerator(10, minePrefab, spawnMinePosition);
         }
 
         private void Start()
-        {    
+        {            
             _health += Time.deltaTime;
             if (Mathf.Approximately(_health, 0))    //+ - эпсилон, сравнивает
             {
@@ -85,18 +94,18 @@ namespace MyProjectL
 
         void Update() //привязан к фпс                 
         {
-            if (Input.GetKeyDown(KeyCode.V) && HPBottle > 0f && _health < 100f)
+            if (Input.GetKeyDown(KeyCode.V) && HPBottle > 0f && _health < _maxhealth)
             {
                 _health = _health + 20f;
-                HPBottle = HPBottle - 1f;
-                if (_health > 100f)
+                HPBottle = HPBottle - 1f; //? было -1f потому что значение хп было 1
+                if (_health > _maxhealth)
                 {
-                    _health = 100f;
+                    _health = _maxhealth;
                 }
             }
             
             HPBottleT.text = "" + HPBottle;
-            UIHP.fillAmount = HP;
+            UIHP.fillAmount = (float)HP/_maxhealth;
 
             if (Input.GetMouseButtonDown(0) && _cooldown2)
             {
@@ -262,7 +271,7 @@ namespace MyProjectL
             print("OuchLemon: " + _damage);
 
             _health -= _damage;
-
+            _healthBar._fill = _health / _maxhealth;
             if (_health <= 0)
             {                
                 print("OuchLemon: " + "Dead....");

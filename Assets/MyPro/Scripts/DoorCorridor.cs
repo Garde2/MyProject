@@ -12,62 +12,75 @@ namespace MyProjectL
         [SerializeField] private Transform _rotatePoint;
         [SerializeField] private bool _isStopped;
         //[SerializeField] private float lifetime = 5f;
-        public GameObject TextOpenDoor;      
+        public GameObject TextOpenDoor;
+        public GameObject TextNeedKey;
         public bool _isLocked;
         public int id;
 
 
-        private readonly int IsOpen = Animator.StringToHash("IsOpen"); //экономит такты процессов
+        private readonly int IsOpen = Animator.StringToHash("IsOpen");
 
         private void Awake()
         {
-            _anim = GetComponent<Animator>();            
+            _anim = GetComponent<Animator>();
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Player") && _isLocked)
+            {
+                if (other.TryGetComponent(out IStorage storage))
+                {
+                    if (storage.IsGetKey(id))
+                    {
+                        TextOpenDoor.SetActive(true);
+                    }
+                    else
+                    {
+                        TextNeedKey.SetActive(true);
+                    }
+                }
+            }
+        }
 
         private void OnTriggerExit(Collider other)
-        {            
+        {
             if (other.CompareTag("Player") && !_isStopped)
             {                
-                _anim.SetBool(IsOpen, false);                
-                TextOpenDoor.SetActive(false);                
-            }
-
-            if (other.CompareTag("Enemy") && !_isStopped)
-            {
-                _anim.enabled = false;               
+                TextOpenDoor.SetActive(false);
+                TextNeedKey.SetActive(false);
             }
         }
 
-        private void OnTriggerStay(Collider other)  //аналог апдейта но для тех, кто в триггере
+        private void OnTriggerStay(Collider other) 
         {
-            if (other.CompareTag("Player"))
-            {                
-                if (!_isLocked)                          
-                {                    
-                    OnDoor();
-                    TextOpenDoor.SetActive(false);
-                }                               
-            }
-
-            if (other.CompareTag("Enemy"))      
+            if (other.CompareTag("Player") && _isLocked)
             {
-                _anim.enabled = true;                
+                if (other.TryGetComponent(out IStorage storage))
+                {
+                    if (storage.IsGetKey(id))
+                    {
+                        OnDoor();
+                    }
+                    
+                }
             }
         }
-        
+
         void OnDoor()
         {
+            
             if (Input.GetKey(KeyCode.X))
             {
+                _isLocked = false;
                 //if (Player._greenKey){}
                 TextOpenDoor.SetActive(false);
-                _anim.SetBool(IsOpen, false);
+                TextNeedKey.SetActive(false);
+                _anim.SetBool(IsOpen, true);
                 Debug.Log("Open");
-
             }
         }
     }
-    
+
 
 }
