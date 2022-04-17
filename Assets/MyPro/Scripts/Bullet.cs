@@ -10,6 +10,8 @@ namespace MyProjectL
         [SerializeField] private float _damage = 3;              
         [SerializeField] private Rigidbody _rigidbody;
 
+        [SerializeField] private ParticleSystem _sparksPrefab;
+
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody>();
@@ -18,8 +20,7 @@ namespace MyProjectL
         public void Init(float lifeTime, float force)
         {                        
             Destroy(gameObject, lifeTime);       //Destroy(this) - пуля останется, а компонент с неё удалится
-            _rigidbody.AddForce(transform.forward * force, ForceMode.Impulse ); //сила и вращение + импульс
-            //Debug.Log("Spawn   Bullet!");
+            _rigidbody.AddForce(transform.forward * force, ForceMode.Impulse ); //сила и вращение + импульс            
         }
         //void FixedUpdate()
         //{
@@ -32,7 +33,12 @@ namespace MyProjectL
 
         private void OnCollisionEnter(Collision collision)  
         {
-            // Debug.Log("Hit");
+            var particle = Instantiate(_sparksPrefab); //передали PS - получили PS, а не GO
+            particle.transform.position = collision.contacts[0].point; //разместили
+            particle.transform.rotation = Quaternion.Euler(collision.contacts[0].normal); // развернули от точки соприкосн
+            var lifetime = particle.main.duration + particle.main.startLifetimeMultiplier;
+            Destroy(particle.gameObject, lifetime);
+
             if (collision.gameObject.TryGetComponent(out ITakeDamage takeDamage))  //коллизия(класс) - точка соприк объектов физич
             {
                 takeDamage.Hurt(_damage);

@@ -110,9 +110,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damage: 3
-  _force: 10
-  _speed: 10
   _rigidbody: {fileID: 0}
+  _sparksPrefab: {fileID: 6570652225153014400, guid: 5a77bf5d29c29344b8c2f1acabfafd3c,
+    type: 3}
 --- !u!54 &-7367211862715524720
 Rigidbody:
   m_ObjectHideFlags: 0
